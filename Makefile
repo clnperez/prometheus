@@ -21,6 +21,11 @@ BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_NAME       ?= prometheus
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
+GO_ARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) 
+ifneq ($(GO_ARCH),amd64)  
+    GO_ARCH =$(shell uname -m)
+endif
+
 ifdef DEBUG
 	bindata_flags = -debug
 endif
@@ -68,8 +73,7 @@ assets:
 
 promu:
 	@echo ">> fetching promu"
-	@GOOS=$(shell uname -s | tr A-Z a-z) \
-	GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
+	@GOOS=$(shell uname -s | tr A-Z a-z) GOARCH=$(GO_ARCH) \
 	$(GO) get -u github.com/prometheus/promu
 
 
